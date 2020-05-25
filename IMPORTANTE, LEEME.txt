@@ -1,0 +1,4 @@
+********************************IMPORTANTE***************************************
+Dentro del archivo lex.l, se encuentra el respectivo main.c de este, esto lo hicimos para poder ahorrar espacio del codigo.
+
+Actualmente esto es lo que llevamos del trabajo, cualquer sugerencia o comentario es muy agradecida, profesor.
