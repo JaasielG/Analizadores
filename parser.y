@@ -138,7 +138,7 @@ lista_param : lista_param COMA exp | exp;
 cond : cond OR cond | cond AND cond | NEG cond | PARA cond PARC | exp rel exp | TRUE | FALSE;
 
 /* R → R < R | R > R | R >= R | R <= R | R != R | R == R */
-rel : rel MENQUE | rel MAYQUE | rel MAYIGUAL | rel MENIGUAL | rel DIF | rel IGUAL ; 
+rel : rel MENQUE | rel MAYQUE | rel MAYIGUAL | rel MENIGUAL | rel DIF | IGUAL ; 
 
 %%
 
