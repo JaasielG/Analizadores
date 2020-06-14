@@ -9,7 +9,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	int num_char=0;
+	int num_car=0;
 	int num_linea=0;
 	char linea[20];
 	char cadena[20];
@@ -26,8 +26,8 @@ letra [a-zA-Z]
 digito [0-9]
 letra_ ({letra}|_)+
 id ({letra_}|{letra_}({letra_}|{digito})+)
-tipo $(int|float|double|char|void|struct)
-res #(do|for|double|char|void|struct|false|func|printf)
+tipo $(ent|real|dreal|car|sin|struct)
+res #(dreal|car|struct|func|escribir)
 opesp [(|)|{|}]
 termina [;]
 espacio [ \n\t]
@@ -36,14 +36,14 @@ numero ({digito}*.{digito}+|({digito})+)
 coment [/][*]({letra}|{digito})*[\n]({letra}|{digito})*[*][/]
 opera  [+|-|*|/|%]
 condi  [|| | && | ! ]
-rela   [<|>|<=|>=|!=|==|=]
+rela   [<|>|<=|>=|!=|=]
 
 
 %%
 
  /*ACCIONES LEXICAS*/
- /*	Se especifican las acciones que se llevaran a 	cabo cuando se identifiquen cada uno de los  		tokens acpetados por la gramática propuesta. 		Igualmente se retorna la clase lexica, la cual 	 recibira el analizador sintactico para llevar a 		cabo su tarea*/
-{id} {num_char=num_char+yyleng;
+ /*	Se especifican las acciones que se llevaran a cabo cuando se identifiquen cada uno de los tokens acpetados por la gramática propuesta. Igualmente se retorna la clase lexica, la cual recibira el analizador sintactico para llevar a cabo su tarea*/
+{id} {num_car=num_car+yyleng;
 		fputs("\n<id\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);		
@@ -53,7 +53,7 @@ rela   [<|>|<=|>=|!=|==|=]
  /*Para los casos: res, opesp, opera, condi y rela se retorna una 		clase lexica por cada uno de los elementos
 	que los conforman y asi estos puedan ser diferenciados e 		identificados de forma individual por el 
 	analizador sintactico.*/
-{tipo} {num_char=num_char+yyleng;
+{tipo} {num_car=num_car+yyleng;
 		fputs("\n<tipo\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);
@@ -61,7 +61,7 @@ rela   [<|>|<=|>=|!=|==|=]
 		printf("\n<(2)tipo,%s>\n",yytext);
 	}
 
-{res} {num_char=num_char+yyleng;
+{res} {num_car=num_car+yyleng;
 	  fputs("\n<res\t,\t",yyout);
 	  fputs(yytext,yyout);
 	  fputs(">",yyout);
@@ -69,7 +69,7 @@ rela   [<|>|<=|>=|!=|==|=]
 	  printf("\n<(3)res,%s>\n",yytext);
 	}
 
-{opesp} {num_char=num_char+yyleng;
+{opesp} {num_car=num_car+yyleng;
 		fputs("\n<opesp\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);
@@ -78,9 +78,9 @@ rela   [<|>|<=|>=|!=|==|=]
 	}
 
  /*los espacios los ignorados*/
-{espacio} {num_char=num_char+yyleng;}
+{espacio} {num_car=num_car+yyleng;}
 
-{cadena} {num_char=num_char+yyleng;
+{cadena} {num_car=num_car+yyleng;
 		 fputs("\n<cadena\t,\t",yyout);
 		 fputs(yytext,yyout);
 		 fputs(">",yyout);
@@ -88,7 +88,7 @@ rela   [<|>|<=|>=|!=|==|=]
 		 printf("\n<(6)cadena,%s>\n",yytext);
 		}
 
-{numero} {num_char=num_char+yyleng;
+{numero} {num_car=num_car+yyleng;
 		fputs("\n<numero\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);
@@ -96,7 +96,7 @@ rela   [<|>|<=|>=|!=|==|=]
 		printf("\n<(7)numero,%s>\n",yytext);
 	}
 
-{opera} {num_char=num_char+yyleng;
+{opera} {num_car=num_car+yyleng;
 		fputs("\n<opera\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);
@@ -104,7 +104,7 @@ rela   [<|>|<=|>=|!=|==|=]
 		printf("\n<(8)opera,%s>\n",yytext);
 	}
 
-{coment} {num_char=num_char+yyleng;
+{coment} {num_car=num_car+yyleng;
 		fputs("\n<coment\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);
@@ -112,7 +112,7 @@ rela   [<|>|<=|>=|!=|==|=]
 		printf("\n<(9)coment,%s>\n",yytext);
 	}
 
-{condi} {num_char=num_char+yyleng;
+{condi} {num_car=num_car+yyleng;
 			fputs("\n<condicional\t,\t",yyout);
 			fputs(yytext,yyout);
 			fputs(">",yyout);
@@ -120,7 +120,7 @@ rela   [<|>|<=|>=|!=|==|=]
 			printf("\n<(10)condi,%s>\n",yytext);
 		}
 
-{rela} {num_char=num_char+yyleng;
+{rela} {num_car=num_car+yyleng;
 			fputs("\n<relacional\t,\t",yyout);
 			fputs(yytext,yyout);
 			fputs(">",yyout);
@@ -128,7 +128,7 @@ rela   [<|>|<=|>=|!=|==|=]
 			printf("\n<(11)rela,%s>\n",yytext);
 		}
 
-{termina} {num_char=num_char+yyleng;	
+{termina} {num_car=num_car+yyleng;	
 		fputs("\n<termina\t,\t",yyout);
 		fputs(yytext,yyout);
 		fputs(">",yyout);		
@@ -139,10 +139,10 @@ rela   [<|>|<=|>=|!=|==|=]
  /*Si se encuentra algun error, son agregados a un archivo en el 	cual se muestra tanto la linea 
 	como la columna donde se produjo el error lexico.*/
 . {printf("Error lexico: %s\n", yytext);	
-			num_char=num_char+yyleng;
+			num_car=num_car+yyleng;
 			num_linea=yylineno;
 			sprintf(linea, "%i", num_linea);
-			sprintf(cadena, "%i", num_char);
+			sprintf(cadena, "%i", num_car);
 			fputs("\n<error\t,\t", e);
 			fputs(linea,e);
 			fputs(":", e);
