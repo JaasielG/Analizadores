@@ -32,15 +32,15 @@ void yyerror (char *)
 	CORC : ]	
 	LLA : {
 	LLC : }
-	AND : &&
-	OR : || 
+	YY : &&
+	OO : || 
 	COMA : ,
 	DP : :
 	PUNTO : .*/
 
 %token ID
-%token INT FLOAT DOUBLE CHAR VOID STRUCT
-%token DO FOR FALSE FUN PRINTF TRUE IF ELSE WHILE SWITCH RETURN BREAK CASE DEFAULT
+%token ENT REAL DREAL CAR SIN STRUCT
+%token FALSO FUN ESCRIBIR VERDADERO SI SINO MIENTRAS SEGUN DEVOLVER TERMINAR CASO PREDETERMINADO
 %nonassoc PARA PARC LLAA LLAC CORA CORC
 %token CADENA
 %token CARACTER
@@ -50,8 +50,8 @@ void yyerror (char *)
 %left MAS MEN
 %token MENQUE MAYQUE MENIGUAL MAYIGUAL
 %token IGUAL DIF
-%left AND
-%left OR 
+%left YY
+%left OO 
 %right ASIGNA
 %token COMENT
 %token PYC 
@@ -70,7 +70,7 @@ void yyerror (char *)
 	CAS = Casos 
 	PRED= predeterminado
 	V_A = var_arreglo 
-	PAR = Parámetros
+	P = Parámetros
 	L_P = lista_parametros
 	prog = programa
 	decl = declaraciones
@@ -83,10 +83,10 @@ void yyerror (char *)
 prog : decl funcion;
 
 /* D → T L; | Ɛ */
-decl : tipo lista PYC | ;
+decl : base lista PYC | ;
 
-/* T → int | float | double | char | void | struct {D} */
-tipo : INT | FLOAT | DOUBLE | CHAR | VOID | STRUCT LLAA decl LLAC;
+/* B → ent | real | dreal | car | sin | struct {D} */
+base : ENT | REAL | DREAL | CAR | SIN | STRUCT LLAA decl LLAC;
 
 /* L → L, id A | id A */ 
 lista : lista COMA ID array | ID array;
@@ -95,29 +95,28 @@ lista : lista COMA ID array | ID array;
 array : CORA NUMERO CORC array | ;
 
 /* F → func T id ( ARG ) { D } F | Ɛ */
-funcion : FUN tipo ID PARA arg PARC LLAA decl sent LLAC funcion | ;
+funcion : FUN base ID PARA arg PARC LLAA decl sent LLAC funcion | ;
 
 /* ARG → L_A |  Ɛ */
 arg : lista_arg | ;
 
 /* L_A → L_A , T id P_A | T id P_A */
-lista_arg : lista_arg COMA tipo ID parte_array | tipo ID parte_array;
+lista_arg : lista_arg COMA base ID parte_array | base ID parte_array;
 
 /* P_A → CORA CORC P_A | Ɛ */
 parte_array : CORA CORC parte_array | ;
 
-/* S → SS | if ( C ) S | if ( C ) S else S | while ( C ) S | do S while ( C ); | 
-	for  ( S ; C ; S ) S | P_I = E ; |  return E; | return; | { S } | 
-	switch ( E ) { CAS PRED } | break; | print E; */
-sent : sent sent | IF PARA cond PARC sent | IF PARA cond PARC sent ELSE sent | WHILE PARA cond PARC sent |
-	DO sent WHILE PARA cond PARC PYC | FOR PARA sent PYC cond PYC sent PARC sent | parte_izq ASIGNA exp PYC |
-	RETURN exp PYC | RETURN PYC | LLAA sent LLAC | SWITCH PARA exp PARC LLAA caso pred LLAC | BREAK PYC | PRINTF exp PYC;
+/* S → SS | si ( E_B ) entonces S | si ( C ) S sino S | mientras ( C ) que S |  devolver E; | devolver; | { S } | 
+	MIENTRAS ( E ) { CASO PRED } | terminar; | escribir E; */
+sent : sent sent | SI PARA ebool PARC sent | SI PARA ebool PARC sent SINO sent | MIENTRAS PARA ebool PARC sent | 
+	   parte_izq ASIGNA exp PYC | DEVOLVER exp PYC | DEVOLVER PYC | LLAA sent LLAC | MIENTRAS PARA exp PARC LLAA caso pred LLAC | 
+	   TERMINAR PYC | ESCRIBIR	 exp PYC;
 
 /* CAS → case: num S PRED |  Ɛ */
-caso : CASE DP NUMERO sent pred | ;
+caso : CASO DP NUMERO sent pred | ;
 
 /* PRED → default: S | Ɛ */
-pred : DEFAULT DP sent | ;
+pred : PREDETERMINADO DP sent | ;
 
 /* P_I → id | V_A | id.id */
 parte_izq : ID | var_arg | ID PUNTO ID;
@@ -134,11 +133,11 @@ param : ; | lista_param;
 /* L_P = L_P , E | E */
 lista_param : lista_param COMA exp | exp;
 
-/* C → C || C | C && C | ! C | ( C )  | E R E | true | false */
-cond : cond OR cond | cond AND cond | NEG cond | PARA cond PARC | exp rel exp | TRUE | FALSE;
+/* E_B → E_B || E_B | E_B && E_B | ! E_B | ( E_B )  | E R E | true | false */
+ebool : ebool OO ebool | ebool YY ebool | NEG ebool | PARA ebool PARC | exp rel exp | VERDADERO | FALSO;
 
 /* R → R < R | R > R | R >= R | R <= R | R != R | R == R */
-rel : rel MENQUE | rel MAYQUE | rel MAYIGUAL | rel MENIGUAL | rel DIF | IGUAL ; 
+rel : MENQUE | MAYQUE | MAYIGUAL | MENIGUAL | DIF | IGUAL ; 
 
 %%
 
@@ -148,4 +147,6 @@ rel : rel MENQUE | rel MAYQUE | rel MAYIGUAL | rel MENIGUAL | rel DIF | IGUAL ;
 void yyerror (s) char *s {
 	printf ("Error: %s\n",s);
 }
+
+
 
