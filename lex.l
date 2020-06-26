@@ -1,172 +1,177 @@
 /*
 * Autores: Dominguez Cisneros Alexis Saul y Garcia Oviedo Jaasiel Osmar
  * Creado 22/05/2020 by Dominguez Cisneros Alexis Saul
- * Editado y terminado: 23/05/2020 by Garcia Oviedo Jaasiel Osmar
- *ultima revision: 24/05/2020 by Dominguez Cisneros Alexis Saul y Garcia Oviedo Jaasiel Osmar
+ * Editado y terminado: 25/06/2020 by Garcia Oviedo Jaasiel Osmar
+ *ultima revision: 26/06/2020 by Dominguez Cisneros Alexis Saul y Garcia Oviedo Jaasiel Osmar
  *ESTE PROGRAMA LLEVA A CABO LA GENERACION DEL ANALAIZADOR LEXICO
 */
 
 %{
+
 	#include <stdio.h>
+	#include <string.h>
 	#include <stdlib.h>
-	int num_car=0;
-	int num_linea=0;
-	char linea[20];
-	char cadena[20];
-	FILE *e;
-	int token;
+	#include "yacc_p.tab.h"
+
 %}
 
 %option noyywrap
 %option yylineno
-/*
-************************************EXPRESIONES REGULARES************************************
-*/
+
+
+digito [0-9]+
+ent_def [+-]?{digito}
+exp [Ee][+-]?{digito}+
+real_def ({digito}.?{digito}{exp}|{digito}?.{digito}{exp}?|{digito}.{digito}?{exp}?)[Ff]
+dreal_def ({digito}.?{digito}{exp}|{digito}?.{digito}{exp}?|{digito}.{digito}?{exp}?)[dD]
 letra [a-zA-Z]
-digito [0-9]
-letra_ ({letra}|_)+
-id ({letra_}|{letra_}({letra_}|{digito})+)
-tipo $(ent|real|dreal|car|sin|struct)
-res #(dreal|car|struct|func|escribir)
-opesp [(|)|{|}]
-termina [;]
-espacio [ \n\t]
-cadena ["]({letra}*|{digito}*)+["]
-numero ({digito}*.{digito}+|({digito})+)
-coment [/][*]({letra}|{digito})*[\n]({letra}|{digito})*[*][/]
-opera  [+|-|*|/|%]
-condi  [|| | && | ! ]
-rela   [<|>|<=|>=|!=|=]
+id (_|{letra})((_|{letra}|{digito})){0,31}
+
+car_def '([^'])'
+cadena \"([^"]*)\"
+
+registro [Rr][Ee][Gg][Ii][Ss][Tt][Rr][Oo]
+inicio [Ii][Nn][Ii][Cc][Ii][Oo]
+fin [Ff][Ii][Nn]
+ent [Ee][Nn][Tt]
+real [Rr][Ee][Aa][Ll]
+dreal [Dd][Rr][Ee][Aa][Ll]
+car [Cc][Aa][Rr]
+sin [Ss][Ii][Nn]
+def [Dd][Ee][Ff]
+si [Ss][Ii]
+entonces [Ee][Nn][Tt][Oo][Nn][Cc][Ee][Ss]
+sino [Ss][Ii][Nn][Oo]
+mientras [Mm][Ii][Ee][Nn][Tt][Rr][Aa][Ss]
+hacer [Hh][Aa][Cc][Ee][Rr]
+escribir [Ee][Ss][Cc][Rr][Ii][Bb][Ii][Rr]
+leer [Ll][Ee][Ee][Rr]
+devolver [Dd][Ee][Vv][Oo][Ll][Vv][Ee][Rr]
+terminar [Tt][Ee][Rr][Mm][Ii][Nn][Aa][Rr]
+verdadero [Vv][Ee][Rr][Dd][Aa][Dd][Ee][Rr][Oo]
+falso [Ff][Aa][Ll][Ss][Oo]
+
+%x com1
+%x com2
 
 
 %%
 
- /*ACCIONES LEXICAS*/
- /*	Se especifican las acciones que se llevaran a cabo cuando se identifiquen cada uno de los tokens acpetados por la gramática propuesta. Igualmente se retorna la clase lexica, la cual recibira el analizador sintactico para llevar a cabo su tarea*/
-{id} {num_car=num_car+yyleng;
-		fputs("\n<id\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);		
-		yylex();
-		printf("\n<(1)id,%s>\n",yytext);
-	}
- /*Para los casos: res, opesp, opera, condi y rela se retorna una 		clase lexica por cada uno de los elementos
-	que los conforman y asi estos puedan ser diferenciados e 		identificados de forma individual por el 
-	analizador sintactico.*/
-{tipo} {num_car=num_car+yyleng;
-		fputs("\n<tipo\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);
-		yylex();
-		printf("\n<(2)tipo,%s>\n",yytext);
-	}
 
-{res} {num_car=num_car+yyleng;
-	  fputs("\n<res\t,\t",yyout);
-	  fputs(yytext,yyout);
-	  fputs(">",yyout);
-	  yylex();
-	  printf("\n<(3)res,%s>\n",yytext);
-	}
 
-{opesp} {num_car=num_car+yyleng;
-		fputs("\n<opesp\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);
-		yylex();
-		printf("\n<(4)opesp,%s>\n",yytext);
-	}
 
- /*los espacios los ignorados*/
-{espacio} {num_car=num_car+yyleng;}
+{ent_def}   {yylval.line = yylineno;yylval.num.tipo = 1;yylval.num.ival = atoi(yytext);return NUM;}
 
-{cadena} {num_car=num_car+yyleng;
-		 fputs("\n<cadena\t,\t",yyout);
-		 fputs(yytext,yyout);
-		 fputs(">",yyout);
-		 yylex();
-		 printf("\n<(6)cadena,%s>\n",yytext);
-		}
+{real_def}  {yylval.line = yylineno;yylval.num.tipo = 2;yylval.num.fval = atof(yytext);return NUM;}
 
-{numero} {num_car=num_car+yyleng;
-		fputs("\n<numero\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);
-		yylex();
-		printf("\n<(7)numero,%s>\n",yytext);
-	}
+{dreal_def} {yylval.line = yylineno; yylval.num.tipo = 3; yylval.num.dval = atof(yytext);return NUM;}
 
-{opera} {num_car=num_car+yyleng;
-		fputs("\n<opera\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);
-		yylex();
-		printf("\n<(8)opera,%s>\n",yytext);
-	}
+{car_def}   {yylval.line = yylineno;yylval.car.tipo = 4;sprintf(yylval.sval,"%c",yytext[1]);return CARACTER;}
 
-{coment} {num_car=num_car+yyleng;
-		fputs("\n<coment\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);
-		yylex();
-		printf("\n<(9)coment,%s>\n",yytext);
-	}
+{ent}    {yylval.line = yylineno;return ENT;}
 
-{condi} {num_car=num_car+yyleng;
-			fputs("\n<condicional\t,\t",yyout);
-			fputs(yytext,yyout);
-			fputs(">",yyout);
-			yylex();
-			printf("\n<(10)condi,%s>\n",yytext);
-		}
+{dreal} {yylval.line = yylineno;return DREAL;}
 
-{rela} {num_car=num_car+yyleng;
-			fputs("\n<relacional\t,\t",yyout);
-			fputs(yytext,yyout);
-			fputs(">",yyout);
-			yylex();
-			printf("\n<(11)rela,%s>\n",yytext);
-		}
+{real} {yylval.line = yylineno;return REAL;}
 
-{termina} {num_car=num_car+yyleng;	
-		fputs("\n<termina\t,\t",yyout);
-		fputs(yytext,yyout);
-		fputs(">",yyout);		
-		printf("\n<(12)End_Linea,%s>\n",yytext);
-	}
+{car} {yylval.line = yylineno;return CAR;}
 
-[ \n\t]+ {}
- /*Si se encuentra algun error, son agregados a un archivo en el 	cual se muestra tanto la linea 
-	como la columna donde se produjo el error lexico.*/
-. {printf("Error lexico: %s\n", yytext);	
-			num_car=num_car+yyleng;
-			num_linea=yylineno;
-			sprintf(linea, "%i", num_linea);
-			sprintf(cadena, "%i", num_car);
-			fputs("\n<error\t,\t", e);
-			fputs(linea,e);
-			fputs(":", e);
-			fputs(cadena,e);			
-	}	
+{sin}   {yylval.line = yylineno;return SIN;}
+
+{registro} {yylval.line = yylineno;return REGISTRO;}
+
+{inicio} {yylval.line = yylineno;return INICIO;}
+
+{def}  {yylval.line = yylineno;return DEF;}
+
+{sino}    {yylval.line = yylineno;return SINO;}
+
+{si}    {yylval.line = yylineno;return SI;}
+
+{devolver} {yylval.line = yylineno;return DEVOLVER;}
+
+{fin}    {yylval.line = yylineno;return FIN;}
+
+{entonces}    {yylval.line = yylineno;return ENTONCES;}
+
+{verdadero} {yylval.line = yylineno;return VERDADERO;}
+
+{falso} {yylval.line = yylineno;return FALSO;}
+
+{mientras}  {yylval.line = yylineno;return MIENTRAS;}
+
+{hacer}  {yylval.line = yylineno;return HACER;}
+
+{leer}    {yylval.line = yylineno;return LEER;}
+
+{escribir}    {yylval.line = yylineno;return ESCRIBIR;}
+
+"o"    {yylval.line = yylineno;return O;}
+
+"y"    {yylval.line = yylineno;return Y;}
+
+"no"    {yylval.line = yylineno;return NO;}
+
+"+"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return MAS; }
+
+"-"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return MENOS; }
+
+"*"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return PROD; }	
+
+"/"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return DIV; }
+
+"%"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return MOD; }
+
+"(" {yylval.line = yylineno;return LPAR; }
+
+")" {yylval.line = yylineno;return RPAR;}
+
+":="   {yylval.line = yylineno;return ASIG;}
+
+"," {yylval.line = yylineno;return COMA;}
+
+"[" {yylval.line = yylineno;return LCOR;}
+
+"]" {yylval.line = yylineno;return RCOR;}
+
+";" {yylval.line = yylineno;return PYC;}
+
+"." {yylval.line = yylineno;return PT;}
+
+"<"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return SMT; }
+
+">"	{ yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return GRT; }
+
+">=" { yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return GREQ; }
+
+"<=" { yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return SMEQ; }
+
+"<>" { yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return DIF; }
+
+"==" { yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext); return EQEQ; }
+
+{id} { yylval.line = yylineno; sprintf(yylval.sval,"%s",yytext);return ID;}
+
+[ \n\t\r]+	{}
+
+
+
+"/*"				{ BEGIN(com1); }
+
+<com1>\n    		{ yylval.line = yylineno; }
+
+<com1>[^*\n]*		{}
+
+<com1>"*"+[^*/\n]*	{}
+
+<com1>"*"+"/"		{ BEGIN(INITIAL); }
+
+"//"				{ BEGIN(com2); }
+
+<com2>[^*\n]*		{}
+
+<com2>\n  			{ BEGIN(INITIAL); }
+
+.					{ printf("\n****Error lexico en la linea: %d\n", yylineno);}
 
 %%
-/**********************************Main C*************************************************/
-
-/*En esta parte se lleva a cabo el procedimiento para abrir/crear  y cerrar los archivos utilizados por el analizador 
-lexico. En total se hace uso de dos archivos: Tokens y Erroes.*/
-int main(int argc, char **argv){
-	FILE *f, *t;
-	f=fopen(argv[1], "r");
-	yyin=f;
-	t=fopen("Tokens.txt", "w");
-	e=fopen("Errores.txt", "w");
-	yyout=t;
-	if(yyin==NULL||yyout==NULL){
-		printf("Error\n");
-	}else{
-		yylex();
-	}
-	fclose(yyin);
-	fclose(yyout);
-	fclose(e);
-}
